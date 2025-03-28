@@ -16,3 +16,5 @@ runtimes/output_segments/video_segments/
 
 src/__pycache__/
 **/__pycache__/
+.DS_Store
+*/.DS_Store

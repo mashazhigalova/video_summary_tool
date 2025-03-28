@@ -9,6 +9,7 @@ langdetect==1.0.9
 pyperclip==1.9.0
 
 # File handling and media processing
+ffmpeg-python==0.2.0
 imageio-ffmpeg==0.6.0
 
 # Utilities

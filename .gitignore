@@ -1,7 +1,8 @@
 .idea/
-.streamlit/
+# .streamlit/
 .venv/
 .vscode/
+.devcontainer/
 
 .env
 .env.local

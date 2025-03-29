@@ -1,6 +1,5 @@
 import base64
 import os
-import shutil
 
 def copy_to_clipboard(text):
     """
@@ -57,14 +56,14 @@ def clear_folders():
     It does not delete any subdirectories, ensuring that the folder structure remains intact.
 
     Folders to be cleared:
-        - runtimes
-        - runtimes/output_segments
-        - runtimes/video_uploads
+        - tmp/runtimes
+        - tmp/runtimes/output_segments
+        - tmp/runtimes/video_uploads
 
     Returns:
         None: This function does not return any value. It performs file deletion as a side effect.
     """
-    folders_to_clear = ["runtimes", "runtimes/output_segments", "runtimes/video_uploads"]  # Add any other folders as needed
+    folders_to_clear = ["tmp/runtimes", "tmp/runtimes/output_segments", "tmp/runtimes/video_uploads"]  # Add any other folders as needed
     for folder in folders_to_clear:
         if os.path.exists(folder):
             for filename in os.listdir(folder):

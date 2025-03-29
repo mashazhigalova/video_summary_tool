@@ -33,7 +33,7 @@ def transcribe_audio_parallel(chunks: list) -> str:
 def transcribe(vidlength, audio_path):
     transcribed_text = ''
     if vidlength > 1800:
-        output_dir = "runtimes/output_segments"
+        output_dir = "tmp/runtimes/output_segments"
         chunks = split_audio_ffmpeg(audio_path, segment_duration=900, output_folder=output_dir)
         print(f"Transcribing {len(chunks)} chunks..")
         transcribed_text = transcribe_audio_parallel(chunks)

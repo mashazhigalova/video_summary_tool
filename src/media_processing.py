@@ -8,7 +8,6 @@ from pytubefix import YouTube
 from pathlib import Path
 import ffmpeg
 import os
-import json
 
 def download_audio_from_yt(
     url: str, download_path: str, show_log: bool = False
@@ -27,7 +26,7 @@ def download_audio_from_yt(
             - Duration of the video in seconds.
     """
     if show_log:
-        print(f"Starting download from {url}")
+        print(f"Starting download from {url}..")
 
     yt = YouTube(url, on_progress_callback=on_progress)
     ys = yt.streams.get_audio_only()
@@ -78,6 +77,7 @@ def split_audio_ffmpeg(input_file: str, segment_duration: int, output_folder: st
     output_pattern = os.path.join(output_folder, f"{original_file_name}_%03d.m4a")
 
     try:
+        print(f"Splitting audio from {input_file} into segments of {segment_duration} seconds..")
         # Use ffmpeg-python to split the audio
         stream = ffmpeg.input(input_file)
         stream = ffmpeg.output(
@@ -87,10 +87,12 @@ def split_audio_ffmpeg(input_file: str, segment_duration: int, output_folder: st
             acodec='copy',
             f='segment'
         )
+        print(f"Running ffmpeg command: {stream}")
         ffmpeg.run(stream, overwrite_output=True)
 
         # Get the list of generated segment files
         segment_files = sorted(Path(output_folder).glob(f"{original_file_name}_*.m4a"))
+        print(f"Generated {len(segment_files)} segments")
         return [str(f) for f in segment_files]
     except ffmpeg.Error as e:
         raise RuntimeError(f"Error splitting audio: {e.stderr.decode() if e.stderr else str(e)}")
@@ -106,8 +108,10 @@ def get_video_duration_ffmpeg(video_path: str) -> float:
         float: The duration of the video in seconds.
     """
     try:
+        print(f"Fetching video duration from {video_path}")
         probe = ffmpeg.probe(video_path)
         duration = float(probe['format']['duration'])
+        print(f"Video duration: {duration} seconds")
         return duration
     except ffmpeg.Error as e:
         raise RuntimeError(f"Error fetching the video duration: {e.stderr.decode() if e.stderr else str(e)}")
@@ -129,9 +133,11 @@ def extract_audio_from_local_video_ffmpeg(uploaded_file, audio_path: str) -> Tup
     video_path = os.path.join(output_folder, f"temp_{uploaded_file.name}")
 
     try:
+        print(f"Saving video to {video_path}..")
         with open(video_path, "wb") as f:
             f.write(uploaded_file.getbuffer())
 
+        print(f"Running ffmpeg command to extract audio")
         # Use ffmpeg-python to extract audio
         stream = ffmpeg.input(video_path)
         stream = ffmpeg.output(
@@ -140,9 +146,11 @@ def extract_audio_from_local_video_ffmpeg(uploaded_file, audio_path: str) -> Tup
             acodec='aac',
             q=0
         )
+        print(f"Running ffmpeg command: {stream}")
         ffmpeg.run(stream, overwrite_output=True)
         
         duration = get_video_duration_ffmpeg(video_path)
+        print(f"Video duration: {duration} seconds")
         return uploaded_file.name, duration
 
     except ffmpeg.Error as e:
@@ -160,6 +168,7 @@ def extract_audio(uploaded_file=None, youtube=True, url='') -> Tuple[str, int, s
     Returns:
         Tuple[str, int, str]: A tuple containing the video title, its duration in seconds, and the path to the audio file.
     """
+    print("Starting audio extraction..")
     # Download audio
     runtimes_folder = "runtimes"
     os.makedirs(runtimes_folder, exist_ok=True)
@@ -173,4 +182,5 @@ def extract_audio(uploaded_file=None, youtube=True, url='') -> Tuple[str, int, s
     else:
         vidtitle, vidlength = extract_audio_from_local_video_ffmpeg(uploaded_file, audio_path=audio_path)
 
+    print(f"Audio extraction complete: video title: {vidtitle}, video duration: {vidlength}, audio path: {audio_path}")
     return vidtitle, vidlength, audio_path

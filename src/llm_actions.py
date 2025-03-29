@@ -82,6 +82,7 @@ def summarize_text(input_text: str, chosen_language: str, gemini_key:str) -> str
         chosen_language = detected_language
 
     try:
+        print(f"Summarizing text in {chosen_language}..")
         prompt_template = ChatPromptTemplate.from_messages(
             [("system", system_template), ("user", "{input_text}")]
         )
@@ -90,7 +91,7 @@ def summarize_text(input_text: str, chosen_language: str, gemini_key:str) -> str
         prompt = prompt_template.invoke({"detected_language": detected_language, "chosen_language": chosen_language, "input_text": input_text})
 
         response = llm.invoke(prompt)
-
+        print(f"Summarization complete!")
         return response.content
 
     except Exception as e:
@@ -111,6 +112,7 @@ def get_full_transcription(input_text: str, gemini_key:str) -> str:
     system_template = create_prompt(type='full_transcript')
 
     try:
+        print(f"Creating full transcript..")
         prompt_template = ChatPromptTemplate.from_messages(
             [("system", system_template), ("user", "{input_text}")]
         )
@@ -119,6 +121,7 @@ def get_full_transcription(input_text: str, gemini_key:str) -> str:
         prompt = prompt_template.invoke({"input_text": input_text})
         response = llm.invoke(prompt)
 
+        print(f"Full transcript created!")
         return response.content
 
     except Exception as e:

@@ -34,10 +34,12 @@ if "previous_file" not in st.session_state:
     st.session_state.previous_file = None
 if "disabled_button" not in st.session_state:
     st.session_state.disabled_button = False  # Default to not disabled
-if "disabled_lang_toggle" not in st.session_state:
-    st.session_state.disabled_lang_toggle = False
 if "gemini_api_key" not in st.session_state:
     st.session_state.gemini_api_key = None
+if "use_original_language" not in st.session_state:
+    st.session_state.use_original_language = True  # Initialize language preference
+if "language_settings_disabled" not in st.session_state:
+    st.session_state.language_settings_disabled = False  # Initialize language settings disabled state
 
 if "url_disabled" not in st.session_state:
     st.session_state.url_disabled = False
@@ -62,7 +64,9 @@ def clear_outputs():
     st.session_state.summary = None
     st.session_state.raw_transcript = None
     # Deleting temp data 
+    print("Clearing temp data..")
     clear_folders()
+    print("Temp data cleared!")
     
 
 def main():
@@ -171,21 +175,26 @@ def main():
         with st.expander("Language settings"):
             col1, col2 = st.columns([1,1])
             with col1:
-                st.toggle("Use original language", key="disabled_lang_picker", value=True, disabled=st.session_state.disabled_lang_toggle)
+                st.session_state.use_original_language = st.toggle(
+                    "Use original language", 
+                    value=st.session_state.use_original_language,
+                    disabled=st.session_state.language_settings_disabled
+                )
             with col2:
                 lang_option = st.selectbox(
                     "What language do you prefer?",
                     ("English", "Dutch", "Russian"),
-                    disabled=st.session_state.disabled_lang_picker,
+                    disabled=st.session_state.use_original_language or st.session_state.language_settings_disabled,
                 )
+        if st.session_state.use_original_language:
+            lang_option = ""
         
         st.markdown('<p style="margin-bottom: 30px;"></p>', unsafe_allow_html=True)
 
-        # Callback function to disable the button
+        # Callback function to disable the button and language settings
         def disable():
             st.session_state.disabled_button = True
-            st.session_state.disabled_lang_picker = True
-            st.session_state.disabled_lang_toggle = True
+            st.session_state.language_settings_disabled = True
 
         # Check if API key is enetered
         if not st.session_state.api_key_validated:
@@ -283,7 +292,8 @@ def main():
         st.session_state.youtube_key +=1
         st.session_state.condition_yt = False
         st.session_state.condition_file = False
-        st.session_state.disabled_lang_toggle = False
+        st.session_state.use_original_language = True
+        st.session_state.language_settings_disabled = False  # Reset language settings disabled state
         clear_outputs()
         st.rerun()
             

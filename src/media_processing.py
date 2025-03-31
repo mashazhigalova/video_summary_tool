@@ -25,12 +25,20 @@ def download_audio_from_yt(
             - The title of the video.
             - Duration of the video in seconds.
     """
+
+    # Ensure the directory exists
+    output_dir = os.path.dirname(download_path)
+    os.makedirs(output_dir, exist_ok=True)
+
+    # Extract just the filename from the path
+    filename = os.path.basename(download_path)
+
     if show_log:
         print(f"Starting download from {url}..")
 
     yt = YouTube(url, on_progress_callback=on_progress)
     ys = yt.streams.get_audio_only()
-    ys.download(filename=download_path)
+    ys.download(output_path=output_dir, filename=filename)
 
     if ys:
         if show_log:
@@ -58,14 +66,14 @@ def get_video_info(url: str) -> Dict[str, str]:
     except Exception as e:
         raise RuntimeError(f"Error fetching the video title: {e}")
 
-def split_audio_ffmpeg(input_file: str, segment_duration: int, output_folder: str = "tmp/runtimes/output_segments") -> list:
+def split_audio_ffmpeg(input_file: str, segment_duration: int, output_folder: str = "tmp/output_segments") -> list:
     """
     Splits an audio file into equal-length segments using FFmpeg.
 
     Args:
         input_file (str): The path of the audio file to split.
         segment_duration (int): The duration of each segment in seconds.
-        output_folder (str, optional): The folder where the segments will be saved. Defaults to "tmp/runtimes/output_segments".
+        output_folder (str, optional): The folder where the segments will be saved. Defaults to "tmp/output_segments".
 
     Returns:
         list: A list of file paths for the generated audio segments.
@@ -127,7 +135,7 @@ def extract_audio_from_local_video_ffmpeg(uploaded_file, audio_path: str) -> Tup
     Returns:
         Tuple[str, int]: A tuple containing the video title and its duration in seconds.
     """
-    output_folder = "tmp/runtimes/video_uploads"
+    output_folder = "tmp/video_uploads"
     os.makedirs(output_folder, exist_ok=True)
 
     video_path = os.path.join(output_folder, f"temp_{uploaded_file.name}")
@@ -170,10 +178,11 @@ def extract_audio(uploaded_file=None, youtube=True, url='') -> Tuple[str, int, s
     """
     print("Starting audio extraction..")
     # Download audio
-    runtimes_folder = "tmp/runtimes"
+    runtimes_folder = "/tmp"
     os.makedirs(runtimes_folder, exist_ok=True)
     runtime_id = str(uuid4())
-    audio_path = f"{runtimes_folder}/{runtime_id}.m4a"
+    # audio_path = f"{runtimes_folder}/{runtime_id}.m4a"
+    audio_path = os.path.join(runtimes_folder, f"{runtime_id}.m4a")
 
     vidtitle, vidlength = '', 0
 

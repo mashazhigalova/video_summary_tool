@@ -8,6 +8,7 @@ from pytubefix import YouTube
 from pathlib import Path
 import ffmpeg
 import os
+import regex as re
 
 def download_audio_from_yt(
     url: str, download_path: str, show_log: bool = False
@@ -65,6 +66,54 @@ def get_video_info(url: str) -> Dict[str, str]:
         return {"title": yt.title, "length": yt_length}
     except Exception as e:
         raise RuntimeError(f"Error fetching the video title: {e}")
+
+def find_captions(url: str) -> Dict[str, str]:
+    """
+    Finds all available captions for the video and returns a dictionary of language codes and names.
+
+    Args:
+        url (str): The URL of the YouTube video.
+
+    Returns:
+        Dict[str, str]: A dictionary containing the language codes and names of the available captions.
+    """
+    yt = YouTube(url, on_progress_callback=on_progress)
+    if not yt.captions:
+        return {}
+    else:
+        captions = {key: yt.captions[key].name for key in yt.captions.lang_code_index}
+        return captions
+
+
+def retrieve_subtitles(url: str, selected_caption_language: str = None) -> str:
+    """
+    Retrieves the subtitles for the video in the preferred language.
+
+    Args:
+        url (str): The URL of the YouTube video.
+        selected_caption_language (str, optional): Preferred language code (e.g., 'en', 'ru'). Defaults to None.
+
+    Returns:
+        str: The subtitles text.
+    """
+    try:
+        yt = YouTube(url, on_progress_callback=on_progress)
+        raw_captions = yt.captions
+        
+        # Check once again if there are any captions
+        if not raw_captions:
+            return ""
+        
+        captions = {key: yt.captions[key].name for key in yt.captions.lang_code_index}
+        selected_code = [key for key, value in captions.items() if value == selected_caption_language][0]
+        
+        captions_text = raw_captions[selected_code].generate_txt_captions()
+        
+        return captions_text
+
+    except Exception as e:
+        print(f"Error retrieving subtitles: {e}")
+        return ""
 
 def split_audio_ffmpeg(input_file: str, segment_duration: int, output_folder: str = "tmp/output_segments") -> list:
     """

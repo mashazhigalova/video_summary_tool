@@ -1,7 +1,7 @@
 import torch
 import whisper
 from concurrent.futures import ProcessPoolExecutor
-from src.media_processing import split_audio_ffmpeg
+from src.media_processing import split_audio_ffmpeg, extract_audio
 
 def transcribe_chunk(file_path: str) -> str:
     """Transcribes an audio chunk.
@@ -30,7 +30,13 @@ def transcribe_audio_parallel(chunks: list) -> str:
         transcripts = list(executor.map(transcribe_chunk, chunks))
     return " ".join(transcripts)  # Combine results
 
-def transcribe(vidlength, audio_path):
+def transcribe(youtube = True, url = '', uploaded_file = None) -> str:
+
+    if youtube:
+        _, vidlength, audio_path = extract_audio(youtube=True, url=url)
+    else:
+        _, vidlength, audio_path = extract_audio(youtube=False, url=uploaded_file)
+
     transcribed_text = ''
     if vidlength > 1800:
         output_dir = "tmp/output_segments"

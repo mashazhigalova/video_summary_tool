@@ -1,4 +1,5 @@
 import re
+import time
 
 import streamlit as st
 import pyperclip as pc
@@ -40,6 +41,10 @@ if "use_original_language" not in st.session_state:
     st.session_state.use_original_language = True  # Initialize language preference
 if "language_settings_disabled" not in st.session_state:
     st.session_state.language_settings_disabled = False  # Initialize language settings disabled state
+if "use_captions" not in st.session_state:
+    st.session_state.use_captions = False 
+if "use_captions_disabled" not in st.session_state:
+    st.session_state.use_captions_disabled = False 
 
 if "url_disabled" not in st.session_state:
     st.session_state.url_disabled = False
@@ -172,7 +177,27 @@ def main():
 
     if st.session_state.condition_yt or st.session_state.condition_file:
 
-        with st.expander("Language settings"):
+        if st.session_state.condition_yt:
+            # Section for captions
+            with st.expander("Captions (YouTube only)"):
+                captions = find_captions(st.session_state[f"yt_{st.session_state.youtube_key}"])
+                lang_list = list(captions.values())
+                if not lang_list:
+                    st.session_state.use_captions_disabled = True
+                col1, col2 = st.columns([1,1])
+                with col1:  
+                    st.session_state.use_captions = st.toggle(
+                        "Use captions for transcription",
+                        disabled=st.session_state.use_captions_disabled
+                    )
+                with col2:
+                    captions_lang = st.selectbox(
+                        "Available languages",
+                        lang_list,
+                        disabled=st.session_state.use_captions_disabled
+                    )
+
+        with st.expander("Summary language settings"):
             col1, col2 = st.columns([1,1])
             with col1:
                 st.session_state.use_original_language = st.toggle(
@@ -195,6 +220,7 @@ def main():
         def disable():
             st.session_state.disabled_button = True
             st.session_state.language_settings_disabled = True
+            st.session_state.use_captions_disabled = True
 
         # Check if API key is enetered
         if not st.session_state.api_key_validated:
@@ -209,28 +235,38 @@ def main():
                     disabled=st.session_state.disabled_button)  # Disable if already clicked
 
             if generate_content_button:
+                start_time = time.time()
                 # Check API key first
                 st.session_state.disabled_button = True
                 with st.spinner("Processing video..."):
                     try:
+                        # Transcribe audio
                         if st.session_state.condition_yt:
-                            # Download audio
-                            vidtitle, vidlength, audio_path = extract_audio(youtube=True, url=st.session_state[f"yt_{st.session_state.youtube_key}"])
+                            
+                            if st.session_state.use_captions:
+                                transcribed_text = retrieve_subtitles(st.session_state[f"yt_{st.session_state.youtube_key}"], captions_lang)
+                                st.info(f"Using available captions in {captions_lang}", icon=":material/closed_caption:")
+                            else:
+                                # Audio transcription
+                                transcribed_text = transcribe(youtube=True, url=st.session_state[f"yt_{st.session_state.youtube_key}"])
+                                st.info("No captions available, using audio transcription", icon=":material/closed_caption_disabled:")
+                            
                             st.session_state.previous_url = st.session_state[f"yt_{st.session_state.youtube_key}"]
                         elif st.session_state[f"file_{st.session_state.uploader_key}"] is not None:
-                            vidtitle, vidlength, audio_path = extract_audio(youtube=False, uploaded_file=st.session_state[f"file_{st.session_state.uploader_key}"])
+                            transcribed_text = transcribe(youtube=False,
+                                                          uploaded_file=st.session_state[f"file_{st.session_state.uploader_key}"])
                             st.session_state.previous_file = st.session_state[f"file_{st.session_state.uploader_key}"].name
 
-                        # Transcribe audio
-                        transcribed_text = transcribe(vidlength, audio_path)
-                        
                         summary = summarize_text(transcribed_text, chosen_language=lang_option, gemini_key=st.session_state.gemini_api_key)
                         full_transcript = get_full_transcription(transcribed_text, gemini_key=st.session_state.gemini_api_key)
                         
                         st.session_state.summary = summary
                         st.session_state.full_transcript = full_transcript
                         st.session_state.raw_transcript = transcribed_text
-                        
+
+                        end_time = time.time()  # End timer
+                        elapsed_time = end_time - start_time  # Calculate duration
+                        st.info(f"Time taken: {elapsed_time:.2f} seconds", icon=":material/timer:")
                         
                     except Exception as e:
                         st.error(f"An error occurred: {str(e)}")
@@ -293,6 +329,7 @@ def main():
         st.session_state.condition_yt = False
         st.session_state.condition_file = False
         st.session_state.use_original_language = True
+        st.session_state.use_captions_disabled = False
         st.session_state.language_settings_disabled = False  # Reset language settings disabled state
         clear_outputs()
         st.rerun()

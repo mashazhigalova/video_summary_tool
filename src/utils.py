@@ -91,9 +91,6 @@ def style_css(background_image):
         [data-testid="stExpander"] summary {{
             color: white !important;  /* Expander title */
         }}
-        [data-testid="stSidebar"] {{
-            background-color: rgba(0, 0, 0, 0.3) !important;
-        }}
         [data-testid="stSidebar"] .stTextInput input::placeholder {{
             color: rgba(255, 255, 255, 0.5) !important;
         }}

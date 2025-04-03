@@ -5,6 +5,7 @@ A Streamlit-based application that creates summaries and transcriptions of video
 ## Features ✨
 
 - Process videos from YouTube URLs or local MP4 files
+- Process captions for Youtube videos with the possibility to choose a language
 - Generate concise summaries of video content
 - Create full transcriptions
 - Support for multiple languages (English, Dutch, Russian)
@@ -20,27 +21,13 @@ A Streamlit-based application that creates summaries and transcriptions of video
 
 ## Installation 🚀
 
-1. Install ffmpeg:
-   - **macOS** (using Homebrew):
-     ```bash
-     brew install ffmpeg
-     ```
-   - **Windows** (using Chocolatey):
-     ```bash
-     choco install ffmpeg
-     ```
-   - **Linux**:
-     ```bash
-     sudo apt-get install ffmpeg
-     ```
-
-2. Clone the repository:
+1. Clone the repository:
    ```bash
-   git clone <repository-url>
+   git clone https://github.com/mashazhigalova/video_summary_tool.git
    cd video_summary_tool
    ```
 
-3. Install Python dependencies:
+2. Install Python dependencies:
    ```bash
    pip install -r requirements.txt
    ```
@@ -57,6 +44,7 @@ A Streamlit-based application that creates summaries and transcriptions of video
 3. In the application:
    - Enter and validate your Gemini API key in the sidebar
    - Either paste a YouTube URL or upload an MP4 file
+   - Opt for using captions for transcription
    - Choose language settings (original or translated)
    - Click "Get Video Content" to process the video
    - View and interact with the generated summary and transcript

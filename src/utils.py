@@ -49,31 +49,6 @@ def convert_youtube_url(url):
 
     return embed_url
 
-def clear_folders():
-    """Clears all files in the specified folders, without deleting directories.
-
-    This function iterates through a predefined list of folders and removes all files within them.
-    It does not delete any subdirectories, ensuring that the folder structure remains intact.
-
-    Folders to be cleared:
-        - tmp/runtimes
-        - tmp/runtimes/output_segments
-        - tmp/runtimes/video_uploads
-
-    Returns:
-        None: This function does not return any value. It performs file deletion as a side effect.
-    """
-    folders_to_clear = ["tmp/", "tmp/output_segments", "tmp/video_uploads"]  # Add any other folders as needed
-    for folder in folders_to_clear:
-        if os.path.exists(folder):
-            for filename in os.listdir(folder):
-                file_path = os.path.join(folder, filename)
-                try:
-                    if os.path.isfile(file_path):  # Only remove files
-                        os.unlink(file_path)  # Remove the file
-                except Exception as e:
-                    print(f'Failed to delete {file_path}. Reason: {e}')
-
 def style_css(background_image):
     return f"""
     <style>
@@ -106,8 +81,8 @@ def style_css(background_image):
     </style>
 
     <p style="text-align:center; font-size:40px; color:#ffffff; font-weight: bold">
-    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">Transcribe & Summarize Your Videos
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">YouTube Subtitle Summarizer
     </p>
-    <div class="small-text"><p style="text-align:center;">Get accurate transcriptions and intelligent summaries in minutes</p></div>
+    <div class="small-text"><p style="text-align:center;">Get intelligent summaries from YouTube video subtitles</p></div>
 """
 

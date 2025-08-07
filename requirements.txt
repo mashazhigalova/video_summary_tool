@@ -1,20 +1,13 @@
 # Core dependencies
 streamlit==1.40.0
 pytubefix==9.3.0
-# Removed: openai-whisper==20240930
-# Removed: torch==2.6.0
 langchain-google-genai==2.1.0
-langchain-core==0.3.45
+langchain-core>=0.3.15
 langdetect==1.0.9
-pyperclip==1.9.0
 
 # SSL Certificate handling
-certifi==2023.11.17
-urllib3==2.0.7
-
-# Removed: File handling and media processing
-# Removed: ffmpeg-python==0.2.0
-# Removed: imageio-ffmpeg==0.6.0
+certifi>=2024.2.2
+urllib3>=2.0.7,<3.0
 
 # Utilities
 python-dotenv==1.0.1

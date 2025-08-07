@@ -2,7 +2,6 @@ import re
 import time
 
 import streamlit as st
-# import pyperclip as pc
 
 from src.media_processing import get_video_info, find_captions, retrieve_subtitles
 # Removed: from src.transcribe import *
@@ -214,15 +213,8 @@ def main():
     if st.session_state.summary:
         tab1, tab2 = st.tabs(["Summary", "Full Transcript"])
         with tab1:
-            col1, col2 = st.columns([1,3])
+            col1, col2 = st.columns([2,1])
             with col1:
-                if st.button("Copy Summary", type='secondary', icon=":material/content_copy:"):
-                    if copy_to_clipboard(st.session_state.summary):
-                        st.success("Summary copied to clipboard!")
-                    else:
-                        st.info("Copy not available in deployment. Use the download option instead.")
-            
-            with col2:
                 if st.button("Re-generate Summary", type='secondary'):
                     if not st.session_state.gemini_api_key:
                         st.error("Please enter your Gemini API key in the sidebar")
@@ -242,20 +234,15 @@ def main():
             ''', unsafe_allow_html=True)
 
         with tab2:
-            col1,col2,_ = st.columns([1,2,1])
+            col1,col2,_ = st.columns([2,1,1])
             with col1:
-                if st.button("Copy Transcript", type='secondary', icon=":material/content_copy:"):
-                    if copy_to_clipboard(st.session_state.full_transcript):
-                        st.success("Transcript copied to clipboard!")
-                    else:
-                        st.info("Copy not available in deployment. Use the download option instead.")
-            with col2:
                 st.download_button(
                     label="Download Transcript",
                     data=st.session_state.full_transcript,
                     icon=":material/download:",
                     file_name=f"Transcript of {st.session_state.video_title}.txt",
                     mime="text/plain")
+
             st.markdown(f'''
                 <div style="margin-bottom: 15px;">
                     <p style="font-size: 16px; line-height: 1.5; color: #ffffff;">{st.session_state.full_transcript}</p>

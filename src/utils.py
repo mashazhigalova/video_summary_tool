@@ -1,17 +1,5 @@
 import base64
-import os
 
-def copy_to_clipboard(text):
-    """
-    A safe way to handle clipboard operations that works in both local and deployment environments.
-    Returns a boolean indicating whether the text was copied successfully.
-    """
-    try:
-        import pyperclip
-        pyperclip.copy(text)
-        return True
-    except Exception:
-        return False
 
 def get_base64(image_path):
     with open(image_path, "rb") as file:
